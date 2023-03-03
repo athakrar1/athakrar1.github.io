@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>
+  body {
+    padding: 100px;
+    width: 1000px;
+    margin: auto;
+    text-align: left;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    color: #121212;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+</style>
+<title>AR/VR Board Game</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+
+<body>
+
+    <h1 align="middle">Unity, AR, & VR-Compatible Board Game Implementations</h1>
+
+
+<div>
+
+<h2 align="middle">Overview</h2>
+<p>
+  In this project, I implemented a variant on the 15-tile game, using a set of 9 image patches rather a set of sequential numbers. 
+  To start playing the game, the tiles get shuffled, and the objective is to then place them in the correct order. I implemented this in Unity first, 
+  then updated some of the interaction elements such that it was playable in AR on a mobile device, and finally updated it to be playable 
+  on a VR device. The final deliverable is the same game playable in three different, immersive environments!
+</p>
+
+<!-- HW2 -->
+<h2> (1) Implementation of my board game in Unity </h2>
+<p> Built a game board from scratch using Unity - this was my first ever project in Unity, and I had a lot of fun! 
+    After setting up the project with one of the preset scenes,I created a game board and 8 game tiles that lay on top of it. I configured the game 
+    board such that the user first places it on the table in front of them, and then has the ability to move this board onto different horizontal planes.
+    To build the game, I first wrote a simple script to split the image into a set of 9 patches (3x3 grid). 
+    Each patch was mapped as a texture onto one of 8 available GameObject tiles, which are all attached to a script with game logic and 
+    defined interaction mechanisms. I also implemented tile shuffling, a score counter, and interactive pop-ups, 
+</p>
+<p> <i> Video demo: </i> </p>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/DJA7tPZ2s3A" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<!-- <p><a href="https://github.com/athakrar1/cs294-137-hw2-athakrar1">Github</a></p> -->
+<!-- HW 3-1 -->
+<h2> (2) Deploying my Unity game to mobile AR, tested on an iPhone </h2>
+
+<p> This AR implementation built on my previous Unity program, with an extra interaction mechanism added to scan real-world objects! 
+    To convert my app from Unity to the AR space, I made use of AR Session Origin, 
+    AR Session, and AR Input Event Systems in order to get the proper input feedback from users, as well as being able to scan and 
+    interact with the real-world 3D space. </p>
+
+<p> <i> Video demo: </i> </p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/UFilLlgjfXU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<!-- <p><a href="https://github.com/athakrar1/cs294-137-hw3-athakrar1">Github</a></p> -->
+
+
+<!-- HW 3-2 -->
+<h2> (3) Deploying my board game to VR, tested on an Oculus Quest 2 </h2>
+<p> To convert my implementation from Unity desktop to VR, it mainly involved switching to using the Unity XR Interaction Toolkit to properly 
+    accept and process new inputs - they now come froma game controller, rather than a screen touch! The primary interaction mechanisms
+    I used were (1) ray casting from my controllers to interact with objects that are far away and (2) button inputs, where users press a button on controllers to directly trigger a functionality (tile selection, etc).
+    Specifically for the game board, my canvas and tiles remained as game object cubes, but then I created an invisible canvas of 8 buttons overlayed on top of this. 
+    When one of these canvas buttons are clicked, it triggers a set of logic to move around the tiles underneath it. It was a bit of a 
+    hack to get the interactions running as expected, but it seems to work well!
+    
+    ] </p>
+<p> <i> Video demo: </i> </p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/wMVA0P1DaCE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<!-- <p><a href="https://github.com/athakrar1/cs294-137-hw3-vr-athakrar1 ">Github</a></p> -->
+
+</div>
+</body>
+</html>

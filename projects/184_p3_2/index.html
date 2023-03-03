@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>  
+    div.padded {  
+      padding-top: 0px;  
+      padding-right: 100px;  
+      padding-bottom: 0.25in;  
+      padding-left: 100px;  
+    }  
+  </style> 
+<title>Your Name  |  CS 184</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<br />
+<h1 align="middle">Assignment 3: PathTracer</h1>
+    <h2 align="middle">Nikki Suppala & Anjali Thakrar</h2>
+
+    <div class="padded">
+        <p> In this project, we added additional features to our ray tracer from Project 3-1. For the project, we used the staff binaries to give ourselves the basic backbone from project 3-1.
+            There were four parts to the project: Mirror and Glass Materials, Microfacet Material,
+            Environment Light, and Depth of Field; however, we only had to do two parts. We chose parts 1 and 4.
+            In part 1, we implemented mirror and glass models with both reflection and refraction. In part 4,
+            we simulated a thin lens to enable the depth of field effect, instead of having everything
+            be in focus like in previous projects.</p>
+
+    <h2 align="middle">Part 1: Ray Generation and Intersection</h2>
+        <p> For our implementation of part 1, we began with the reflect function. For the reflect function, we really just flipped the sign of every value in the vector by multiplying each element by -1. This effectually makes the vector turn 180 degrees, reflecting it.
+        </p>
+
+        <p>In the sample_f mirror BDSF function, we set the pdf equal to one and set the outgoing vector to be the reflection of the incoming vector, as a mirror shows a perfect reflection of whatever image is displayed onto it.
+
+            We returned reflectance / abs_cos_theta(*wi) from this function rather than just the reflectance in order to chancel our the cosine expression multiplied by the call to at_least_one_bounce_radiance.
+        </p>
+
+        <p>
+            Next, we implemented refract(). For this function, we took advantage of Snell’s equations to help us model the visual effects of refraction. First we calculate eta, which is simlpy the ratio of the old index of refraction to the new index of refraction. If the z coordinate of the wo ray is positive, eta = 1.0/ior. However, when it’s negative, eta is ior.
+        </p>
+
+        <p> Then, we updated the values of wi using the following equations, which are derived from Snell’s law:
+        </p>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/snells.png" width="480px" />
+                </tr>
+            </table>
+
+        <p> Finally, we return transmittance / abs_cos_theta(*wi) / eta^2. In this expression, we divide by the cosine of wi again to cancel to cosine term in at_least_one_bounce_radiance, and divide by the eta^2 term because the transmittance behaves differently depending on the index of refraction of the material the light ray goes through — it concentrates when it enters a high index of refraction material, while it disperses when it moves out of this high index of refraction material.
+        </p>
+
+            <p> Finally, we implemented sample_f for the glass BDSF. For this, we followed the walk through
+            in the spec, where we assign the reflection of the output vector to the input, set the pdf value to 1, and returned reflectance / abs_cos_theta(*wi) when there is total internal reflection. If not, we compute Schlick's reflection coefficient R do perform Russian Roulette to determine whether to do a reflection or refraction sequence on the ray.  </p>
+
+        <p>Parameters: -t 8 -s 64 -l 4 -m [variable] -r 480 360 </p>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/sphere_0.png" width="480px" />
+                    <figcaption align="middle">m = 0: Since this is just a zero bounce, the only visible object in the image is the light source</figcaption>
+                </tr>
+            </table>
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/sphere_1.png" width="480px" />
+                        <figcaption align="middle">m = 1: This is the zero bounce and the first bounce, so we can see the effect of the light source on the two spheres (the reflection) alongside the colors of the walls, which were illuminated by the first bounce </figcaption>
+                </tr>
+            </table>
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/sphere_2.png" width="480px" />
+                        <figcaption align="middle">m = 2: Now, the ceiling is illuminated	 by light that has bounced up. We can also see that the left sphere is mirroring light from the walls which reached it on the previous bounce, which explains the black ceiling color in the reflection. We can also see that the refracting sphere on the right is slightly brighter, having a bit of a reflection effect</figcaption>
+                </tr>
+            </table>
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/sphere_3.png" width="480px" />
+                        <figcaption align="middle">m = 3: The reflection in the sphere now has an illuminated ceiling, but still a black ball (again, because it is reflecting the light from the previous bounce). The refracting sphere has now refracted light, as is apparent by its white and purple color and the circle of light being displayed on the floor. The room has also continued to get brighter.</figcaption>
+                </tr>
+            </table>
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/sphere_4.png" width="480px" />
+                        <figcaption align="middle">m = 4: The room itself has increased in brightness, and the reflecting ball now reflects the right ball as purple! The light traced onto the floor by the refracting ball has bounced and hit the sphere, which has made the bottom of the sphere a bit less shadow-y / brighter
+                        </figcaption>
+                </tr>
+            </table>
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/sphere_5.png" width="480px" />
+                        <figcaption align="middle">m = 5: The entire scene has gotten a bit brighter on this bounce</figcaption>
+                </tr>
+            </table>
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/sphere_100.png" width="480px" />
+                        <figcaption align="middle">m = 100: Again, not much of a change here beyond the scene getting brighter</figcaption>
+                </tr>
+            </table>
+        </div>
+        <p>We had a bug for a while where the refracted sphere was somewhat pixelated and had a black square plastered across
+        its front side. We then realized that this was because we didn't set the pdf equal to 1 in our sample function! </p>
+<!--        <p align="middle"><pre align="middle">a^2 + b^2 = c^2</pre></p>-->
+<!--        <p>or, alternatively, you can include an SVG image of a LaTex formula.</p>-->
+<!--        <p>This time it's your job to copy-paste in the rest of the sections :)</p>-->
+
+
+            <h2 align="middle">Part 4: Depth of Field</h2>
+            <div align="middle">
+            <p>In previous projects, we used a pin-hole camera model. This is a model in which all the light intersecting a scene
+            enters through a single point. This causes the effect of having everything in the scene be equally and fully in focus.
+            However, real cameras have finite aperture sizes, so we implemented the thin-lens camera model to create more realistic renders.
+            In this model, only objects in the plane focalDistance away from the lens are in focus. The focus worsens
+            as you increase or decrease the depth from that plane. The thin-lens model also assumes that the thickness
+            of the lens has negligible effect.</p>
+            </div>
+    <div align="middle">
+        <p>
+            Previously, our ray tracer shot rays from the origin (0,0,0) toward some direction (X,Y,-1). Now,
+            we uniformly sample the lens to get the sampled point on the lens at (S_x, S_y, 0) since we no longer recieve radiance
+            from just (0,0,0). The formula to sample is:
+        <div align="middle">
+        <img src="images/formula.png" width="480px" />
+    </div>
+            Our generated ray direction from the previous project is ((x - 0.5) * (2 * tan(radians(hFov / 2))), (y - 0.5) * (2 * tan(radians(vFov / 2))), -1).
+            This ray times focalDistance is how we calculate pFocus as it intersects the plane of focus with the red segment in the diagram below.
+            Then we calculate the ray that originates from pLens, and set its direction towards pFocus (blue segment in the figure), which
+            is pFocus - pLens. Finally we normalize the direction of the ray, perform the camera-to-world conversion for both its origin and direction,
+            add pos to the ray's origin, and set the near and far clips to be the same as in Project 3-1, Part 1.
+        <div align="middle">
+            <img src="images/diagram.png" width="480px" />
+        </div>
+
+        </p>
+    </div>
+
+            <div align="middle">
+            <p>Below is a "focus stack" of a dragon image at 4 visibly different depths through a scene.
+            The lens radius is set at 0.3. As the depth increases, we can see how the focused parts of the image
+            shift from close to the lens to farther away. The first image has the bottom left corner in focus.
+            The second and third images have the front and back of the dragon in focus. The last image has the
+            back right corner in focus.</p>
+            </div>
+            <div align="middle">
+                <table style="width=100%">
+                    <tr>
+                        <td>
+                            <img src="images/dragon_d4.png" width="480px" />
+                            <figcaption align="middle">Depth = 4</figcaption>
+                        </td>
+                        <td>
+                            <img src="images/dragon_d4-5.png" width="480px" />
+                            <figcaption align="middle">Depth = 4.5</figcaption>
+                        </td>
+                    </tr>
+                    <br>
+                    <tr>
+                        <td>
+                            <img src="images/dragon_d5.png" width="480px" />
+                            <figcaption align="middle">Depth = 5</figcaption>
+                        </td>
+                        <td>
+                            <img src="images/dragon_d5-5.png" align="middle" width="480px" />
+                            <figcaption align="middle">Depth = 5.5</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div align="middle">
+            <p>Below is a sequence of 4 bunny pictures with visibly different aperture sizes, all focused at the same point in a scene.
+            The depth is set at 4.5. The first image is closest to the pin-hole camera model (lens radius = 0). As the
+            aperture size increases, the difference in focus of objects at different depths increases. Take a look
+            at the ears and face of the bunny to see this effect.</p>
+            </div>
+            <div align="middle">
+                <table style="width=100%">
+                    <tr>
+                        <td>
+                            <img src="images/bunny_b0-1.png" width="480px" />
+                            <figcaption align="middle">Lens Radius = 0.1</figcaption>
+                        </td>
+                        <td>
+                            <img src="images/bunny_b0-2.png" width="480px" />
+                            <figcaption align="middle">Lens Radius = 0.2</figcaption>
+                        </td>
+                    </tr>
+                    <br>
+                    <tr>
+                        <td>
+                            <img src="images/bunny_b0-3.png" width="480px" />
+                            <figcaption align="middle">Lens Radius = 0.3</figcaption>
+                        </td>
+                        <td>
+                            <img src="images/bunny_b0-4.png" align="middle" width="480px" />
+                            <figcaption align="middle">Lens Radius = 0.4</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div align="middle">
+            <p> Our approach to this part of the project was to implement the steps directly from the
+            spec and use the image of the rays in the spec to calculate our ray direction and origin. It was pretty
+            straightforward from here. The only debugging issue we ran into was that we accidentally normalized
+            both the origin and direction of the ray, instead of just the direction of the ray initially. What we learned
+            from this part was exactly how aperture size affects focus and how important it is to be
+            at a certain distance from the lens for an image to turn out well.</p>
+            </div>
+
+<div align="middle">
+    <h2 align="middle">Partner work</h2>
+    <p>We worked well as a team and as partners, each doing an equal amount of work. We both
+    worked together on both parts of the project and debugged together in project parties and office hours. We also both contributed
+    equally to the write-up. From past projects, we improved a lot with time management and worked
+    over Spring break to finish early. Overall, it went greatly!</p>
+</div>
+
+</body>
+</html>
+
+
+
+

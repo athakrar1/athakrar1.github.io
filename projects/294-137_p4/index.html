@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>
+  body {
+    padding: 100px;
+    width: 1000px;
+    margin: auto;
+    text-align: left;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    color: #121212;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+</style>
+<title>AR/VR Board Game</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+
+<body>
+
+    <h1 align="middle">Object Pose Estimation</h1>
+
+<div>
+
+<h2 align="middle">Overview</h2>
+
+<p> 
+
+    In this project, I learned  how to predict poses in 6 degrees of freedcom (DoF) of an object in 3D space. I achieved this by first calibrating my computer and phone cameras and then using an aruco marker to detect spatial features. 
+Calibration: 
+- checkerboard image. used to compute the intrinsic matrix of my computer camera to determine calibration procedure. 
+ran a corner detection script on each captured checkerboard image (~20 images). After this worked, confirms that the calibration matrix worked as expected. 
+
+Detecting BRISK features on an AR ARUCO marker. Was doing this on the virtually-rendered image on my computer and through a captured image feed coming from my laptop's camera. 
+1. found keypoints on the marker using a built-in feature detector. visualized ont he image as such: 
+2. to map between the virtual image and real-world image, distorted the current frame using the intrinsic matrix (convert from real-world space to pixel space)
+3. used this to track marker to detect keypoints, match corresponding featuers from the sample marker and the real-world marker
+3. using these relationships, computed a homography to estimate the pose of the camera wrt the marker, which allowed met o determine the location & angle oft he amrker 
+projected a set of points where i wanted them to go into space, which allowed me to render an AR cuber over my marker. (box visualization)
+
+
+After this, i tried to reconstruct an object in 3D space using these same techniques. Aimed to reconstruct tissue box. Took new photos (this time from my iphone rather 
+than my laptop) and re-calibrated using the same script as in previous steps. computed rotation & translation of my camera wrt my reference / virtual image, performed feature mapping, then matched the features 
+(photo). Filtered out extra points, making a sparser but more robust set of feature matches. 
+
+computed depth of points - every column of matrix represented constrints on depth of image, 
+used total least squares minimizations. Built 3d point cloud. 
+
+</p>
+<p> <i> Video demo: </i> </p>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/uYIBPrJaK7M" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe><!-- <p><a href="https://github.com/athakrar1/cs294-137-hw2-athakrar1">Github</a></p> -->
+<!-- https://github.com/athakrar1/hw4-ar-tracking-athakrar1  -->
+</div>
+</body>
+</html>

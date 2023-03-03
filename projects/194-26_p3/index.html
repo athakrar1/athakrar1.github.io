@@ -1,0 +1,440 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>
+  body {
+    padding: 100px;
+    width: 1000px;
+    margin: auto;
+    text-align: left;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    color: #121212;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+</style>
+<title>CS 194-26 Project 3</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+<body>
+<h1 align="middle">CS 194-26 Project 3</h1>
+<h1 align="middle">Face Morphing</h1>
+<h2 align="middle">CS194-26: Image Manipulation and Computational Photography, Fall 2021</h2>
+<h2 align="middle">Anjali Thakrar</h2>
+
+<div>
+
+<h2 align="middle">Overview</h2>
+<p>
+    This project is centered around using user-defined facial keypoints to combine, morph, and warp faces in interesting ways!
+</p>
+
+<h2 align="middle">Defining Correspondences </h2>
+
+<p>
+    I stored my keypoints for each image as an array in text files, using the save_image_to_file function. 
+    To access these points, I used get_point_from_file -- this allowed me to only define and generate my points only once, which saved a lot of time when debugging an generating images!
+</p>
+
+<p>
+    I defined correspondences as such: 
+</p>
+
+<center>
+    <div class="row">
+        <table style="width:100%">
+<td>
+    <img src="mean/example_keypoints.jpeg"  width="220px">
+    <figcaption> Example of keypoint mapping. This is how the Danes dataset was mapped</figcaption> 
+</td>
+<td>
+
+
+    <img src="mean/labelled_keypoints.jpeg"  width="220px">
+    <figcaption> Here's a diagram of how I selected the keypoints in order to match this dataset!</figcaption> 
+</td>
+</table>
+</div>
+</center>
+
+
+<h2 align="middle">Computing the "Mid-way" face </h2>
+<p>  
+    I first reshaped both images to be the same size.
+    Then, I selected 70 keypoints total -- 66 around each face, and 4 for the corners of the image. At this point, I was ready to get started!
+<br>
+<br>
+    In order to calculate the midway face, I first calculated the average between the keypoints (image1_keypoints + image2_keypoints / 2) -- this is the "average" facial shape between the two images.This is important to use 
+    because morphing from one image to another, which may have a significantly different shape, would lead to some unrealistic warping. 
+    By warping both face shapes to the average shape, each image is 2x less warped while also properly aligning all keypoints and facial 
+    features. This alignment is crucial to being able to realistically blend images and find this desired "midway" image.
+<br>
+<br>
+So, my next step was to warp these images to the average shape. 
+    After finding the desired shape using averages, I calculated the Delaunay triangulation of the average keypoints. By finding the triangulation, this allows us to warp the image by triangle (so by section of the image, defined by the keypoints), 
+    which allows us to faithfully warp the shape of the faces! I applied this triangulation schema to the keypoints of both images to generate the visuals below. 
+    Then, I calculated the affine transformation matrix between the average keypoints and each image in the set (me and Cole), then applying these transformations to every triangle in the image. 
+    
+    <br>
+    <br>
+    The final step is to find the final pixel values of the morphed image. In order to do this, I conducted inverse interpolation / warping using the polygon function -- 
+    this got the desired pixel values from the starting image in order to bring the correct pixels / averaged pixelsto the right 
+    location on the midway image. We inverse map in order to reduce computational power and to make sure all gaps are properly 
+    filled in and in the event that the pixel locations we are reading from are in between pixels!
+    <br>
+    <br>
+    After reshaping the two images, then I can average the two images to be the midway image, with a warp and cross dissolve fraction of 1/2. 
+
+</p>
+
+
+<center>
+    <div class="row">
+        <table style="width:100%">
+            <tr>
+                
+                <td>
+                    <img src="midway/anjali.jpg"  width="220px">
+                    <figcaption> Input image of me </figcaption> 
+            </td>
+            <td>
+                <img src="midway/cole.jpg"  width="220px">
+                <figcaption> Input image of Cole Sprouse </figcaption> 
+        </td>
+            
+        </tr>
+        <tr>
+            
+        <td>
+            <img src="midway/anjali1_triangulation.jpeg"  width="220px">
+            <figcaption> Delaunay triangulation on facial keypoints</figcaption> 
+    </td>
+        
+    <td>
+        <img src="midway/cole_triangulaiton.jpeg"  width="220px">
+        <figcaption> Delaunay triangulation on facial keypoints </figcaption> 
+</td>
+</tr>
+<tr>
+
+                <td>
+                    <img src="midway/anjali_cole_midway.jpeg"  width="220px">
+                    <figcaption> Midway image between me and Cole Sprouse </figcaption> 
+            </td>
+
+            
+        
+    </tr>
+        </table>
+        </div>
+    </center>
+
+
+<h2 align="middle"> The Morph Sequence </h2>
+<p> 
+    The morph sequence is quite similar to the midpoint calcuation, but the cross dissolve and warping happens gradually. 
+
+    <br>
+    <br>
+    The first step is to warp your image to the desired image. We have a "warp" parameter which dictates what percentage of the first 
+    image's shape will contibute to the shape at that stage, and how much the second image will contribute (for the midway image, 
+    this was simply a 50:50 average). 
+
+    <br>
+    <br>
+
+    Then, I cross dissolved the two images, which is affecting the pixel colors / appearance. There is another dissolving parameter that 
+    dictates how much color each image contributes to the final image (the weight of each image in the morph, essentially).
+    <br>
+    <br>
+
+    I started both the warp and dissolve fractions off at 0, so it starts with a normal image of me. However, I then iterated through 
+    the warp and dissolve functions at increments of 0.1 from [0, 1], applying the morph function at every point, which finally resulted in a full morph into Cole. This resulted in 
+    the morph sequence shown below!
+</p>
+
+
+
+<center>
+    <div class="row">
+        <table style="width:100%">
+<td>
+    <img src="midway/anjali_to_colee.gif" width="220px">
+    <figcaption> Morph between me and Cole Sprouse </figcaption> 
+</td>
+</table>
+</div>
+</center>
+
+<h2 align="middle"> The "Mean Face" of a Population </h2>
+<p>  In order to find the mean face of the population, I found the average of all of the keypoints, 
+    morphed the shape of every face in the Danes dataset to that shape, and the averaged all of those images. 
+    I then used these average keypoints in conjunction with my own keypoints to warp my face to the Danes average, 
+    and warp the Danes average to my face.
+
+
+</p>
+<center>
+    <div class="row">
+        <table style="width:100%">
+            <tr>
+                <td>
+            
+     
+                    <img src="mean/warped_1.jpeg"  width="220px">
+                    <figcaption> Dane 1, morphed to average </figcaption> 
+            </td>
+            <td>
+            
+     
+                <img src="mean/warped_2_1.jpeg"  width="220px">
+                <figcaption>  </figcaption>
+                
+        </td>
+        <td>
+            
+     
+            <img src="mean/warped_3_1.jpeg"  width="220px">
+            <figcaption>  </figcaption>
+    
+    </td>
+    <td>
+            
+     
+        <img src="mean/w_1.jpeg"  width="220px">
+        <figcaption>  </figcaption>
+       
+</td>
+
+            </tr>
+            <tr>
+                <td>
+            
+     
+                    <img src="mean/warped_2.jpeg"  width="220px">
+                    <figcaption> Dane 2, morphed to average </figcaption>
+            </td>
+            <td>
+            
+     
+                <img src="mean/warped_2_2.jpeg"  width="220px">
+                <figcaption>  </figcaption>
+                
+        </td>
+        <td>
+            
+     
+            <img src="mean/warped_3_2.jpeg"  width="220px">
+            <figcaption>  </figcaption>
+            
+    </td>
+    <td>
+            
+     
+        <img src="mean/w_2.jpeg"  width="220px">
+        <figcaption>  </figcaption>
+       
+</td>
+
+            </tr>
+            <tr>
+                <td>
+            
+     
+                    <img src="mean/warped_3.jpeg"  width="220px">
+                    <figcaption> Dane 3, morphed to average </figcaption>
+            </td>
+            <td>
+            
+     
+                <img src="mean/warped_2_3.jpeg"  width="220px">
+                <figcaption>  </figcaption>
+              
+        </td>
+        <td>
+            
+     
+            <img src="mean/warped_3_3.jpeg"  width="220px">
+            <figcaption>  </figcaption>
+           
+    </td>
+    <td>
+            
+     
+        <img src="mean/w_3.jpeg"  width="220px">
+        <figcaption>  </figcaption>
+       
+</td>
+
+            </tr>
+            <tr>
+                <td>
+            
+     
+                    <img src="mean/average_face.jpg"  width="220px">
+                    <figcaption> Computed average face from Danes dataset </figcaption> 
+            </td>
+            
+    <td>
+            
+     
+                <img src="mean/avg_left.jpeg"  width="220px">
+                <figcaption> Average Danes looking left </figcaption> 
+        </td>
+        <td>
+            
+     
+            <img src="mean/avg_right.jpeg"  width="220px">
+            <figcaption> Average Danes looking right </figcaption> 
+    </td>
+
+    <td>
+            
+     
+        <img src="mean/avg_smiling.jpeg"  width="220px">
+        <figcaption> Average Danes smiling </figcaption> 
+</td>
+            </tr>
+            <tr>
+                <td></td>
+
+                <td>
+                    <img src="caricature/for_caricature_2.jpg"  width="220px">
+                    <figcaption> Input image of me </figcaption> 
+            </td>
+
+                <td>
+            
+     
+                    <img src="mean/delauney_keypoints_anjali.jpeg"  width="220px">
+                    <figcaption> Delaunay triangles + keypoints </figcaption> 
+                </td>
+    </tr>
+    <tr>
+        <td></td>
+
+        <td>
+
+            <img src="mean/anjali_to_average.jpeg" width="220px">
+            <figcaption> My face warped to the shape of the average Danish person </figcaption> 
+        </td>
+
+        <td>
+            <img src="mean/average_to_anjali.jpeg"  width="220px">
+            <figcaption> The average Danish person's face warped into the shape of my face </figcaption> 
+</td>
+    </tr>
+        </table>
+        </div>
+    </center>
+
+<h2 align="middle"> Caricatures: Extrapolating from the Mean  </h2>
+<p>  
+    A caricature is essentially just taking the features someone 
+    has that are not "average" (e.g. a large nose, small mouth, etc) and accentuating them. 
+    You can generate a facial caricature by extrapolating from the mean face. 
+    
+    In order to do so, 
+    I applied the equation: mean_image_shape + alpha(input_image_shape - mean_image_shape)
+    In order for this to be an extrapolation, alpha must be less than 0 or greater than 1. 
+    
+    <br>
+    <br>
+
+    While I wrote a separate function to calculate this caricature, I noticed that it's possible to calculate this by also pretty much just doing the exact same operation as I did when calcualting the mean face of the 
+    populating and morphing that, but switching up a few of the parameters and the alpha value. 
+</p>
+<p>
+    By making the alpha positive, I am effectually accentuating the features in the input image that deviate from the average, which creates a caricature! 
+    I both subtracted 50% of the "average" features from the computed average image, but also accentuated my own features by 1.5x, leading to an image with large eyes, somewhat uneven smile, thicker eyebrows, etc. 
+    By making the alpha netagive, I am accentuating the "average" Danish features in the image, which is a wider face & nose, thinner eyebrows, and a smaller distance between the eyes and eyebrows, to name a few features. 
+</p>
+<center>
+    <div class="row">
+        <table style="width:100%">
+        <tr>
+            <td>
+    <img src="caricature/2.jpeg"  width="220px">
+    <figcaption> alpha = 2 </figcaption> 
+</td>
+<td>
+<img src="caricature/1.5.jpeg"  width="220px">
+        <figcaption> alpha = 1.5 </figcaption> 
+    </td>
+        <td>
+    <img src="caricature/neg_0.5.jpeg"  width="220px">
+    <figcaption> alpha = -0.5 </figcaption> 
+</td>
+    <td>
+    <img src="caricature/neg_1.jpeg"  width="220px">
+    <figcaption> alpha = -1 </figcaption> 
+</td>
+</tr>
+</table>
+</div>
+    
+
+<h2 align="middle"> Bells & Whistles  </h2>
+<h3 align="middle"> Change my ethnicity  </h3>
+
+<center>
+    <P>
+        In order to do this, I utilize the morphing functionality implemented earlier in the project. I simply warped my face into the average white female face. This can be edited along two axes: the shape warp and the appearance warp. 
+        For the shape warp, the dissolve_frac = 1 as the warp_frac increases (in this case i increased it in increments of 0.1). 
+        For the appearance warp, the warp_frac = 1 as the dissolve_frac increases (in this case i increased it in increments of 0.1).
+        For the full warp, both the warp and dissolve_frac increase at the same time / increment (in this case I increased it in increments of 0.1).
+    </P>
+    <div class="row">
+        <table style="width:100%">
+            <tr>
+                <td>
+                    <img src="ethnicity/anjali_for_mean.jpg"  width="220px">
+                    <figcaption> My face </figcaption> 
+                </td>
+                <td>
+                    <img src="ethnicity/avg_white.jpeg"  width="220px">
+                    <figcaption> Average white woman </figcaption> 
+                </td>
+
+            </tr>
+            <tr>
+            <td>
+                <img src="ethnicity/ethinicity_shape_warp1.gif"  width="220px">
+                <figcaption> Just shape warp </figcaption> 
+            </td>
+            <td>
+                <img src="ethnicity/ethinicity_appearance_warp1.gif"  width="220px">
+                <figcaption> Just appearance warp </figcaption> 
+            </td>
+            <td>
+                <img src="ethnicity/ethnicity_morph.gif"  width="220px">
+                <figcaption> Warp both shape and appearance</figcaption> 
+            </td>
+        </tr>
+</table>
+</div>
+</center>
+
+<h3 align="middle"> Morph through the ages </h3>
+<center>
+<p>  
+    I made a video of <a href="https://youtu.be/fuZ4DyCpTDU">myself growing up</a> using the morphing principles implemented earlier in the project!
+</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/fuZ4DyCpTDU" title="Growing up!" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</center>
+
+<h3 align="middle"> Morph video with classmates </h3>
+<center>
+<p>  
+    I made a <a href="https://www.youtube.com/embed/Dcobr6MmJJI">morph video</a> with some of my CS 194-26 classmates! 
+</p>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Dcobr6MmJJI" title="Morph video!" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</center>
+
+</body>
+</html>

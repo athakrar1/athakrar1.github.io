@@ -1,0 +1,432 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CS 194 Final Project</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="header">
+      <h1>CS 194-26: Image Quilting</h1>
+      <p><b>Anjali Thakrar and Shaina Chen</b> | Fall 2021</p>
+      <br>
+      <br>
+      <br>
+    </div>
+    <div id="navbar">
+      <ul id="navbarul">
+        <li class="navbarli"><a class="active" href="#header">Home</a></li>
+        <li class="navbarli"><a href="#quilting">Image Quilting</a></li>
+      </ul>
+    </div>
+
+    <!-- <div id="quilting" class="contentdark">
+        <h1>Image Quilting</h1>
+    </div> -->
+
+    <div class="contentlight">
+        <h1>Randomly Sampled Texture</h1>
+        <h2>Approach</h2>
+            <p>To create the random sampled texture, we randomly sampled patches of a fixed patchsize and added these tiles one by one to create a randomly sampled texture.
+                This method was the simplest and fastest but the results were, well, pretty random. </p>
+
+                <p>Given the original picture: </p>
+                <img height="400" src="images/quilting/wall/wall.jpg">
+                <p>Here's one result of the random algorithm, scroll down to see a comparison of all three quilt techniques. </p>
+                <img height="400" src="images/quilting/wall/wall_random.png">
+    </div>
+
+    <div class="contentlight">
+      <h1>Overlapping patches</h1>
+      <h2>Approach</h2>
+      <p>For this part, we sampled patches with some overlap between every patch. Usng the sum of squared differences, we computed the cost of the overlapping region between an existing patch in the
+          result quilt and a potential new patch to be added to the final quilt. For every spot in the final quilt, we computed this SSD between every possible patch from the sample texture's overlap region
+            and the existing quilt's overlap region. We would keep track of all patches that had an SSD that was under some error specified by a user defined tolerance and
+            then randomly selected a patch from these patches to add to the final quilt.
+      </p>
+      <p>
+        Here's one result of the overlapping patches algorithm, scroll down to see a comparison of all three quilt techniques. Clearly, this produces a much better result than
+        the randomly sampled patches.
+      </p>
+      <img height="400" src="images/quilting/wall/wall_overlap.png">
+    </div>
+
+    <div class="contentlight">
+        <h1>Seam Finding</h1>
+        <h2>Approach</h2>
+        <p>While overlapping patches produced decent results, there are still some distracting lines in our quilts that we want to get rid of. To do so, we add seam finding to our overlapping patches
+            approach in order to find the best matching cut between two overlapping patches to reduce the edge artifacts.
+        </p>
+        <p>To find the cut for each overlapping region, we must find the min-cost contiguous path from one side to the other side of the overlapping patch.
+        </p>
+        <p>Below is an example of seam finding for a patch that has both a top and left overlap.</p>
+        <table class="center">
+            <tr>
+                <th>Existing quilt overlap region</th>
+                <th>New patch to be added</th>
+            </tr>
+            <tr>
+              <td>
+                  <img height="200" src="images/quilting/wall/existing_patch.png">
+              </td>
+              <td>
+                  <img height="200" src="images/quilting/wall/new_patch.png">
+              </td>
+              </tr>
+            </table>
+            <table class="center">
+
+              <tr>
+                <th>Left SSD</th>
+                <th>Left SSD path</th>
+                <th>Left Cut Mask</th>
+             </tr> 
+             <tr>
+                <td>
+                    <img height="300" src="images/quilting/wall/ssd_left.png">
+                </td>
+                <td>
+                    <img height="300" src="images/quilting/wall/cut_ssd_left.png">
+                </td>
+                <td>
+                    <img height="300" src="images/quilting/wall/cut_left.png">
+                </td>
+                </tr>
+            </table>
+            <table class="center">
+                <tr>
+                    <th>Top SSD</th>
+                    <th>Top SSD path</th>
+                    <th>Top Cut Mask</th>
+                </tr>
+                <tr>
+                    <td>
+                        <img width="200" src="images/quilting/wall/ssd_top.png">
+                    </td>
+                    <td>
+                        <img width="200" src="images/quilting/wall/top_cost_cut.png">
+                    </td>
+                    <td>
+                        <img width="200" src="images/quilting/wall/cut_top.png">
+                    </td>
+                </tr>
+            </table>
+            <table class="center">
+                <tr>
+                    <th>Combined SSD path</th>
+                    <th>Combined Cut Mask</th>
+                </tr>
+                <td>
+                    <img height="200" src="images/quilting/wall/combined_cut.png">
+                </td>
+                <td>
+                    <img height="200" src="images/quilting/wall/cut_combined.png">
+                </td>
+                </tr>
+            </table>
+            <table class="center">
+                <tr>
+                    <th>Existing quilt overlap cut result</th>
+                    <th>New patch to be added cut result</th>
+                 </tr>
+                 <tr>
+                    <td>
+                        <img height="200" src="images/quilting/wall/existing_patch_cut_result.png">
+                    </td>
+                    <td>
+                        <img height="200" src="images/quilting/wall/new_patch_cut_result.png">
+                    </td>
+                </tr>
+            </table>
+            <table class="center">
+                <tr>
+                    <th>Final merged patch</th>
+                 </tr>   
+                 <tr>
+                    <td>
+                        <img height="200" src="images/quilting/wall/merged_final.png">
+                    </td>
+                </tr>
+     
+        </table>
+        <h2>Result</h2>
+        <p>  Here's one result of the seam finding algorithm, scroll down to see a comparison of all three quilt techniques. Clearly, this produces a much cleaner result than
+            the overlapping patches. </p>
+        <img height="400" src="images/quilting/wall/wall_cut.png">
+
+        <p>Overall, the seam finding performs the best because it eliminates any edge artifacts that can be seen in the overlapping patches result. The overlapping patches result does do a good job of
+            matching patches based on color. The random sampling does a poor job of creating a quilt because colors are misaligned and patterns are not connected due to patches being selected randomly.
+        </p>
+
+        
+    <h1>All Quilting Results</h1>
+    <p>Here's a compilation of quilting results using all three methods with given textures (first two rows) and our own personal textures from the internet.</p>
+
+     <table class="center">
+            <tr>
+                <th>Original Texture</th>
+                <th>Random Sampling</th>
+                <th>Overlapping Patches</th>
+                <th>Seam Finding</th>
+            </tr>
+            <tr>
+              <td>
+                  <img height="300" src="images/quilting/bricks/bricks_small.jpg">
+              </td>
+              <td>
+                  <img height="300" src="images/quilting/bricks/brick_random.png">
+              </td>
+              <td>
+                <img height="300" src="images/quilting/bricks/brick_overlap.png">
+            </td>
+            <td>
+                <img height="300" src="images/quilting/bricks/brick_seamless.png">
+            </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <img height="300" src="images/quilting/text/text_small.jpg">
+                </td>
+                <td>
+                    <img height="300" src="images/quilting/text/text_random.png">
+                </td>
+                <td>
+                  <img height="300" src="images/quilting/text/text_overlap.png">
+              </td>
+              <td>
+                  <img height="300" src="images/quilting/text/text_cut.png">
+              </td>
+              </tr>
+
+              <tr>
+                <td>
+                    <img height="300" src="images/quilting/wall/wall.jpg">
+                </td>
+                <td>
+                    <img height="300" src="images/quilting/wall/wall_random.png">
+                </td>
+                <td>
+                  <img height="300" src="images/quilting/wall/wall_overlap.png">
+              </td>
+              <td>
+                  <img height="300" src="images/quilting/wall/wall_cut.png">
+              </td>
+              </tr>
+
+              <tr>
+                <td>
+                    <img height="300" src="images/quilting/yarn/yarn.jpeg">
+                </td>
+                <td>
+                    <img height="300" src="images/quilting/yarn/yarn_random.png">
+                </td>
+                <td>
+                  <img height="300" src="images/quilting/yarn/yarn_overlap.png">
+              </td>
+              <td>
+                  <img height="300" src="images/quilting/yarn/yarn_cut.png">
+              </td>
+              </tr>
+
+
+              <tr>
+                <td>
+                    <img height="300" src="images/quilting/bark/bark.jpeg">
+                </td>
+                <td>
+                    <img height="300" src="images/quilting/bark/bark_random.png">
+                </td>
+                <td>
+                  <img height="300" src="images/quilting/bark/bark_overlap.png">
+              </td>
+              <td>
+                  <img height="300" src="images/quilting/bark/bark_cut.png">
+              </td>
+              </tr>
+        </table>
+    </div>
+
+    <div class="contentlight">
+        <h1>Texture Transfer</h1>
+        <h2>Approach</h2>
+        <p>Given this quilting technique, we can apply it to transfer textures to target images. Texture transfer requires that the output image must follow the correspondence mapping between the source texture and target image and also produce an output that
+            is made up of the source texture.
+            </p> <p>
+        To do so, we need to define a 
+            correspondence map between the source texture and target image we want to transfer the texture to. For this project, the correspondence map
+            is the luminance of the image. Places where both the source texture and target image are bright have a low error. Using some user-specified alpha value,
+            usually between 0.4 and 0.6 for these results, the error term for determining what patch to add to the quilt now becomes alpha * the SSD block overlap error + (1 - alpha) * the SSD error between the
+            correspondance map of the sample texture patch and those in the corresponding location in the target image. The alpha determines how much we want to value preserving the target image appearance versus how much
+            we want to value the seamless transition.
+        </p>
+
+        <p>
+            Below are some texture transfer results.
+        </p>
+
+        <table class="center">
+            <tr>
+                <th>Original Texture</th>
+                <th>Target Image</th>
+                <th>Texture Transfer Result (alpha = 0.5)</th>
+            </tr>
+            <tr>
+              <td>
+                  <img width="300" src="images/texture_transfer/oski/starrynight.jpeg">
+              </td>
+              <td>
+                  <img width="300" src="images/texture_transfer/oski/oski.jpeg">
+              </td>
+              <td>
+                <img width="300" src="images/texture_transfer/oski/oski_1_iter_small_patch.png">
+            </td>
+            </tr>
+
+              <tr>
+                <td>
+                    <img width="300" src="images/quilting/bark/bark.jpeg">
+                </td>
+                <td>
+                    <img height="300" src="images/texture_transfer/oski/oski.jpeg">
+                </td>
+                <td>
+                  <img height="400" src="images/texture_transfer/oski/oski_bark.png">
+              </td>
+              </tr>
+            </table>
+
+        <table class="center">
+                <tr>
+                    <th>Original Texture</th>
+                    <th>Target Image</th>
+                    <th>Texture Transfer Result (alpha = 0.5)</th>
+                </tr>
+            <tr>
+                <td>
+                    <img width="200" src="images/texture_transfer/campanile/white_small.jpg">
+                </td>
+                <td>
+                    <img width="300" src="images/texture_transfer/campanile/camp_img.jpeg">
+                </td>
+                <td>
+                  <img width="300" src="images/texture_transfer/campanile/camp_1_iter.png">
+              </td>
+            </tr>
+            </table>
+            <table class="center">
+                <tr>
+                    <th>Original Texture</th>
+                    <th>Target Image</th>
+                    <th>Texture Transfer Result (alpha = 0.3)</th>
+                </tr>
+              <tr>
+                <td>
+                    <img width="300" src="images/texture_transfer/oski/starrynight.jpeg">
+                </td>
+                <td>
+                    <img height="300" src="images/texture_transfer/goldengate/golden_gat.jpeg">
+                </td>
+                <td>
+                  <img height="300" src="images/texture_transfer/goldengate/golden_gate_texture.png">
+              </td>
+              </tr>
+            </table>
+            <table class="center">
+                <tr>
+                    <th>Original Texture</th>
+                    <th>Target Image</th>
+                    <th>Texture Transfer Result (alpha = 0.5)</th>
+                </tr>
+              <tr>
+                <td>
+                    <img width="300" src="images/texture_transfer/goldengate/icecream2.jpeg">
+                </td>
+                <td>
+                    <img height="300" src="images/texture_transfer/goldengate/golden_gat.jpeg">
+                </td>
+                <td>
+                  <img height="300" src="images/texture_transfer/goldengate/golden_gate_ice_cream.png">
+              </td>
+              </tr>
+        </table>
+    </div>
+    <div class="contentlight">
+        <h1>Bells & Whistles</h1>
+        <h2>Iterative Approach to Texture Transfer</h2>
+        <p>The iterative approach to texture transfer involves applying texture transfer multiple times to an increasingly small patch size in order to generate better images. Given texture transfer requires two
+            constraints to be satisfied, it is sometimes unable to produce an optimal result in the first iteration. Thus, we can apply iterative texture transfer
+            to iterate over the resulting quilt image multiple times with a smaller patch size each time. We also add an additional constraint that the block being added to the final image must satisfy the original contraints set by texture
+            transfer and also match the patch in the same position in the synthesized image from the previous iteration. This allows us to improve the texture transfer result by produced more fine-grained results that iteratively improve upon the texture
+            patches selected for every region of the image.
+
+            It's recommended that the image gets iterated over 3 to 5 times. Here, we did 3 iterations.
+
+        </p>
+        <p>Below are some results of iterative texture transfer and are compared to results from non-iterative texture transfer.</p>
+        <table class="center">
+            <tr>
+                <th>Original Texture</th>
+                <th>Target Image</th>
+                <th>Texture Transfer (iter = 1)</th>
+                <th>Texture Transfer (iter = 2)</th>
+                <th>Texture Transfer (iter = 3)</th>
+                <th>Texture Transfer (non-iterative)</th>
+            </tr>
+        <tr>
+            <td>
+                <img width="200" src="images/texture_transfer/campanile/white_small.jpg">
+            </td>
+            <td>
+                <img width="300" src="images/texture_transfer/campanile/camp_img.jpeg">
+            </td>
+            <td>
+              <img width="300" src="images/texture_transfer/campanile/camp_iter_1.png">
+          </td>
+          <td>
+            <img width="300" src="images/texture_transfer/campanile/camp_iter_2.png">
+        </td>
+        <td>
+            <img width="300" src="images/texture_transfer/campanile/camp_iter_3.png">
+        </td>
+        <td>
+            <img width="300" src="images/texture_transfer/campanile/camp_1_iter.png">
+        </td>
+        </tr>
+
+        <tr>
+            <td>
+                <img width="200" src="images/texture_transfer/oski/starrynight.jpeg">
+            </td>
+            <td>
+                <img width="300" src="images/texture_transfer/oski/oski.jpeg">
+            </td>
+            <td>
+              <img width="300" src="images/texture_transfer/oski/oski_one.png">
+          </td>
+          <td>
+            <img width="300" src="images/texture_transfer/oski/oski_two.png">
+        </td>
+        <td>
+            <img width="300" src="images/texture_transfer/oski/oski_three.png">
+        </td>
+        <td>
+            <img width="300" src="images/texture_transfer/oski/oski_1_iter_small_patch.png">
+        </td>
+        </tr>
+        </table>
+        <p>Overall, I think that the results from iterative texture transfer were good and you can visibly see the improvement in every iteration. However, we also found that
+            running regular texture transfer with small patch sizes (5-10 pixels, with 2 pixels of overlap) produces very good texture transfer results as well. The differences in results
+            is likely due to differences in patch size (the iterative had larger patch sizes even at the 3rd iteration).
+        </p>
+    
+    </div>
+
+  <!-- your content here... -->
+  <script src="js/scripts.js"></script>
+</body>
+</html>

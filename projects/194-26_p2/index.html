@@ -1,0 +1,845 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>
+  body {
+    padding: 100px;
+    width: 1000px;
+    margin: auto;
+    text-align: left;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    color: #121212;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+</style>
+<title>CS 194-26 Project 2</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+<body>
+<h1 align="middle">CS 194-26 Project 2</h1>
+<h1 align="middle">Fun with filters and frequencies!</h1>
+<h2 align="middle">CS194-26: Image Manipulation and Computational Photography, Fall 2021</h2>
+<h2 align="middle">Anjali Thakrar</h2>
+
+<div>
+
+<h2 align="middle">Overview</h2>
+<p>
+    This project is centered around using frequencies to alter and combine images in creative ways! It 
+    is largely focused on separating high and low frequencies into separate image layers, and then 
+    using these layers to create interesting visual / spacial effects for the viewers.  
+</p>
+
+<h2 align="middle">Part 1: Fun with Filters </h2>
+<h3 align="middle">Part 1.1:  Finite Difference Operator </h3>
+
+<p>
+    The gradient magnitude essentially represents that rate of change in a given scalar field. 
+    In the context of audio / visual processing, it represents the difference in frequencies in 
+    a given region of the image. In order to compute this, I first found the gradient in the 
+    x direction, denoted Dx. This is computed by convolving the array [[1, -1]] with the image 
+    matrix. Then I found the gradient in the y direction, Dy by convolving the array [[1], [-1] 
+    with the image matrix. In order to find the gradient magnitude, I then computed the square 
+    root of the square of Dx summed with the sum of Dy (sqrt(Dx ** 2, Dy ** 2)). Finally, I 
+    binarized the image, setting my threshold to 0.3. 
+</p>
+
+<center>
+<div class="row">
+        <figure>
+      
+    </figure>
+    
+    <figure></figure>
+   
+    </figure>
+        
+    <figure></figure>
+    
+</figure>
+
+<figure></figure>
+   
+</figure>
+    </div>
+
+    <center>
+        <div class="row">
+            <table style="width:100%">
+                <tr>
+                    <td>
+
+                        <img src="outputs/part 1.1 gradient/grad_x.jpg" width="220px">
+                        <figcaption> Partial derivative wrt x</figcaption> 
+                    </td>
+            
+                    <td>
+                        <img src="outputs/part 1.1 gradient/grad_y.jpg"  width="220px">
+                        <figcaption> Partial derivative wrt y</figcaption> 
+            </td>
+            
+            <td>
+                
+         
+                <img src="outputs/part 1.1 gradient/grad_mag.jpg"  width="220px">
+                <figcaption> Gradient magnitude</figcaption> 
+        </td>
+            
+        <td>
+            <img src="outputs/part 1.1 gradient/grad_binarized.jpg" width="220px">
+            <figcaption> Binarized gradient magnitude</figcaption> 
+        </td>
+            </tr>
+            </table>
+            </div>
+        </center>
+
+
+</center>
+
+<h3 align="middle">Part 1.2: Derivative of Gaussian (DoG) Filter </h3>
+<p> What differences do we see?: 
+    We can see that the DoG filter makes the output image much smoother. That is, the lines are more connected and soft,
+     which makes the image much more "realistic." This is apparent not only in the lines of the photographer, 
+     but in the speckled ground as well. In terms of the image itself, this means there's less noise. Since both images have the same edges, that means it is a better method. </p>
+
+<center>
+    <div class="row">
+        <table style="width:100%">
+            <tr>
+                <td>
+
+                    <img src="outputs/2.1.2/blurred_dx.png" width="220px">
+                    <figcaption> Blurred then Dx applied</figcaption> 
+                </td>
+        
+                <td>
+                    <img src="outputs/2.1.2/blurred_dy.png"  width="220px">
+                    <figcaption> Blurred then Dy applied </figcaption> 
+        </td>
+        
+        <td>
+            
+     
+            <img src="outputs/2.1.2/blurred_mag.png"  width="220px">
+            <figcaption> Gradient magnitude of 2D Gaussian blurred image</figcaption> 
+    </td>
+        
+    <td>
+        <img src="outputs/2.1.2/blurred_filtered.png" width="220px">
+        <figcaption> Binarized gradient magnitude of blurred image</figcaption> 
+    </td>
+    </tr>
+    <tr>
+
+    <td>
+        <img src="outputs/2.1.2/g_dx.png" width="220px">
+        <figcaption> Gaussian & Dx then applied</figcaption> 
+    </td>
+
+    <td>
+        <img src="outputs/2.1.2/g_dy.png" width="220px">
+        <figcaption> Gaussian & Dy then applied</figcaption> 
+    </td>
+        </tr>
+        </table>
+        </div>
+    </center>
+   
+    <p> Verify equivalent results: As you can see, no matter the order in which the filters are applied, the 
+        result is still largely the same for Dy. This applies not only to the filters onto 
+        the image itself, but to filters multiplying each other before being applied 
+        to the image as well!</p>
+
+<h2 align="middle">Part 2: Fun with Frequencies! </h2>
+<h3 align="middle">Part 2.1: Image "Sharpening" </h3>
+<p> Here, we make use of high frequencies to "sharpen" images. As displayed in part 
+    one, using the Gaussian filter on an image returns the low frequencies of the 
+    image. Therefore, to extract the high frequencies of the image, one must simply 
+    subract the image by the low frequencies of the image. After getting the high 
+    frequencies, which are regions of increased change (so typically edges), we 
+    simply add the high frequencies to the given image. Since this is just doubling 
+    the high frequencies in the image, it gives the appearance of "sharpening," as 
+    seen in the images of the Taj Mahal below! </p>
+
+    <center>
+        <div class="row">
+            <table style="width:100%">
+                <tr>
+                    <td>
+
+                        <img src="outputs/2.1/taj sharp/taj.jpeg" width="220px">
+                        <figcaption> Image of Taj Mahal </figcaption> 
+                    </td>
+            
+                    <td>
+                        <img src="outputs/2.1/taj sharp/taj_low.png"  width="220px">
+                        <figcaption> Low frequency values </figcaption>
+            </td>
+            
+            <td>
+                
+                <img src="outputs/2.1/taj sharp/taj_high.png"  width="220px">
+                <figcaption> High frequency values </figcaption>
+        </td>
+            
+        <td>
+        <img src="outputs/2.1/taj sharp/taj_sharp.png" width="220px">
+        <figcaption> Sharpened image </figcaption> 
+        </td>
+            </tr>
+            </table>
+            </div>
+        </center>
+
+    <p> Now, I'm going to try running this algorithm on a photo of my dog, which has a lot of high frequency values due to her curly fur! I sharpened the image once, which resulted in the following image sequence: </p>
+    
+        <center>
+            <div class="row">
+                <table style="width:100%">
+                    <tr>
+                        <td>
+                            <img src="outputs/2.1/sharp maggie/maggie.jpeg" width="220px">
+                            <figcaption> Photo of my puppy! </figcaption> 
+                        </td>
+                
+                        <td>
+                            <img src="outputs/2.1/sharp maggie/maggie_low.png"  width="220px">
+                            <figcaption> Low frequency values </figcaption> 
+                </td>
+                
+                <td>
+                
+                    <img src="outputs/2.1/sharp maggie/maggie_high.png"  width="220px">
+                    <figcaption> High frequency values </figcaption> 
+            </td> 
+            <td>
+                <img src="outputs/2.1/sharp maggie/maggie_sharp.png"  width="220px">
+                <figcaption> Sharpened image </figcaption> 
+            </td>
+                </tr>
+                </table>
+                </div>
+            </center>
+
+        <p> You can particularly see the sharpness around her mouth and the ends of her fur. I am now sharpening 
+            this already-sharpened image, which results in the following sequence of images: </p>
+
+        <center>
+            <div class="row">
+                <table style="width:100%">
+                    <tr>
+                        <td>
+
+                  <img src="outputs/2.1/maggie_2/maggie_sharp.png" width="220px">
+                  <figcaption> Blurred version of the sharpened puppy (kernel size: 2, sigma: 5)</figcaption> 
+                        </td>
+                
+                        <td>
+                <img src="outputs/2.1/maggie_2/maggie_low2.png" width="220px">
+                  <figcaption> Low frequency values </figcaption> 
+                </td>
+                
+                <td>
+                    
+             
+                <img src="outputs/2.1/maggie_2/maggie_high2.png" width="220px">
+                <figcaption> High frequency values </figcaption> 
+            </td>
+                
+            <td>
+            <img src="outputs/2.1/maggie_2/maggie_sharp2.png" width="220px">
+                <figcaption> Sharpened image (original + high) </figcaption> 
+            </td>
+                </tr>
+                </table>
+                </div>
+            </center>
+
+        <p> This is clearly a much more distinctly sharpened image! However, it contains many more unnatural, high frequency colors while maintaining the blur. This is good because it preserves many key features in the image, but doesn't make for a very good or realistic image. </p>
+    
+        <h3 align="middle">Part 2.2: Hybrid Images </h3>
+
+        <center>
+            <div class="row">
+                <table style="width:100%">
+                    <tr>
+                        <td>
+                        <center>
+                  <img src="outputs/2.2 hybrid/efros.jpeg" width="220px">
+                  <figcaption> Prof. Efros </figcaption> 
+                <center>
+                        </td>
+                    <center>
+                        <td>
+                            <img src="outputs/2.2 hybrid/efros_fft.png" width="220px">
+                        <figcaption> FFT of Efros </figcaption> 
+                    </center>
+                    </td>
+                    <tr>
+                    <td>
+                        <center>
+                            <img src="outputs/a_efros_low.png" width="220px">
+                        <figcaption> Prof. Efros at low frequencies </figcaption> 
+                    </center>
+                    </td>
+                    <td>
+                    <center>
+                        <img src="outputs/a_efros_low_fft.png" width="220px">
+                    <figcaption> FFT of low frequencies of Efros </figcaption> 
+                </center>
+                </td>
+            </tr>
+                </tr>
+                <tr>
+                        <td>
+                        <center>
+                            <img src="outputs/2.2 hybrid/blend sheeran/sheeran.jpeg" width="220px">
+                  <figcaption> Ed Sheeran </figcaption> 
+                </center>
+                </td>
+                <td>
+                <center>
+                    <img src="outputs/2.2 hybrid/blend sheeran/sheeran_fft.png" width="220px">
+                <figcaption> FFT of Sheeran </figcaption></center> 
+            </td>
+            </tr>
+        <tr>
+            <td>
+                <center>
+                    <img src="outputs/a_sheeran_high.png" width="220px">
+                <figcaption> Ed Sheeran at high frequencies </figcaption> 
+            </center>
+            </td>
+            <td>
+            <center>
+                <img src="outputs/a_sheeran_high_fft.png" width="220px">
+            <figcaption> FFT of high frequencies of Sheeran </figcaption> 
+        </center>
+        </td>
+    </tr>
+        <tr>        
+            <td>
+            <center>
+            <img src="outputs/2.2 hybrid/blend sheeran/ed-fros.png" width="220px">
+                <figcaption> Alexei Sheeran (Edfros) Hybrid </figcaption> 
+            </center>
+            </td>
+            
+                <td>
+                <center>
+                    <img src="outputs/a_hybrid_fft.png" width="220px">
+                        <figcaption> Alexei Sheeran (Edfros) FFT </figcaption> 
+                    </center>
+                    </td>
+
+            </tr>
+            <tr>
+                <td>
+                    <center>
+                    <img src="outputs/2.2 hybrid/blend sheeran/edfros_2.png" width="220px">
+                        <figcaption> Hybrid with sharpened high frequencies </figcaption> 
+                    </center>
+                </td>
+                <td>
+                    <center>
+                    <img src="outputs/a_edfros_fft.png" width="220px">
+                        <figcaption> Sharpened hybrid's FFT </figcaption> 
+                    </center>
+                </td>
+            </tr>
+
+                </tr>
+                </table>
+                </div>
+            </center>
+            <p> Since the high frequencies of Ed Sheeran have been added to the low frequencies of Prof. Efros, 
+                so we can see Ed up close and Prof. Efros far away. I found that it wasa bit difficult to make our Ed 
+                up close, and so I tried sharpening the image before extracting the high frequencies. This made 
+                the high frequencies much more pronounced, which led to a better resolution of Ed Sheeran when 
+                looking at this image up close [potential bell & whistle]. </p>
+
+                <center><b><p> Bad Examples </p></b></center>
+                <p> The dog / cat is a bad example because they have different face shapes and ears. Therefore, they can be seen 
+                    (somewhat) from all different distances, when that is not the intent! The mask hybrid is decent, 
+                    but not great. While the shapes line up, the difference in expression is noticeable from most 
+                    distances because of the contrast between the white mask and the black background. So, while in 
+                    theory it should work, its color scheme does not necessarily allow for that. </p>
+
+
+                <center>
+                    <div class="row">
+                        <table style="width:100%">
+                            <tr>
+                                <td>
+                                <center>
+                          <img src="outputs/dog cat hybrid/cat.jpeg" width="220px">
+                          <figcaption> Cat </figcaption> 
+                        <center>
+                                </td>
+                            <center>
+                                <td>
+                                    <img src="outputs/dog cat hybrid/dog.jpg" width="220px">
+                                <figcaption> Dog </figcaption> 
+                            </center>
+                            </td>
+                            <td>
+                            <center>
+                                <img src="outputs/dog cat hybrid/dog_cat.png" width="220px">
+                            <figcaption> Hybrid! </figcaption> 
+                        </center>
+                        </td>
+                        </tr>
+                        <tr>
+                                <td>
+                                <center>
+                                    <img src="outputs/mask_hybrid/mask.jpg" width="220px">
+                          <figcaption> Ed Sheeran </figcaption> 
+                        </center>
+                        </td>
+                        <td>
+                        <center>
+                            <img src="outputs/mask_hybrid/mask2.jpg" width="220px">
+                        <figcaption> FFT of Sheeran </figcaption></center> 
+                    </td>
+                    <td>
+                    <center>
+                        <img src="outputs/mask_hybrid/masks_layered_2.png" width="220px">
+                    <figcaption> FFT of high frequencies of Sheeran </figcaption> 
+                </center>
+                </td>
+                    </tr>
+                        </table>
+                        </div>
+                    </center>
+
+
+
+    <h3 align="middle">Part 2.3: Gaussian and Laplacian Stacks </h3>
+
+    <p> I have shown three layers of the Laplacian stack for the apple and orange images. 
+        These are created by subtracting the the gaussian image at the given layer index i 
+        and at gaussian layer index i+1</p>
+
+    <center>
+        <div class="row">
+            <table style="width:100%">
+                <tr>
+                    <td>
+                    <center>
+              <img src="outputs/2.4 blend/oraple/L0_apple.png" width="220px">
+              <figcaption> Layer: 1 </figcaption> 
+            <center>
+                    </td>
+                <center>
+                    <td>
+                        <img src="outputs/2.4 blend/oraple/L1_apple.png" width="220px">
+                    <figcaption> Layer: 2 </figcaption> 
+                </center>
+                </td>
+                <td>
+                <center>
+                    <img src="outputs/2.4 blend/oraple/L2_apple.png" width="220px">
+                <figcaption> Layer: 3 </figcaption> 
+            </center>
+            </td>
+            </tr>
+            <tr>
+                    <td>
+                    <center>
+                        <img src="outputs/2.4 blend/oraple/L0_orange.png" width="220px"> 
+            </center>
+            </td>
+            <td>
+            <center>
+                <img src="outputs/2.4 blend/oraple/L1_orange.png" width="220px">
+        </td>
+        <td>
+        <center>
+            <img src="outputs/2.4 blend/oraple/L2_orange.png" width="220px">
+    </center>
+    </td>
+        </tr>
+            </table>
+            </div>
+        </center>
+
+        <p> [Bells & Whistles] Here is the Derek / cat hybrid image. I am showing it in black and 
+            white and all permutations of color / b&w to see what works best. 
+            Based on the results below, it seems like when the cat is in color 
+            and derek is in black and white (high frequency is color, low 
+            frequency is derek), we achieve the best results! </p>
+
+        <center>
+            <div class="row">
+                <table style="width:100%">
+                    <tr>
+                        <td>
+
+                  <img src="outputs/cat_derek/x_fully_gray.png" width="220px">
+                  <figcaption> Cat: B&W, Derek: B&W </figcaption> 
+                        </td>
+                
+                        <td>
+                <img src="outputs/cat_derek/x_colored_cat.png" width="220px">
+                  <figcaption> Cat: Color, Derek: B&W </figcaption> 
+                </td>
+                
+                <td>
+                    
+             
+                <img src="outputs/cat_derek/x_colored_derek.png" width="220px">
+                <figcaption> Cat: B&W, Derek: Color </figcaption> 
+            </td>
+                
+            <td>
+            <img src="outputs/cat_derek/x_fully_color.png" width="220px">
+                <figcaption> Cat: Color, Derek: Color </figcaption> 
+            </td>
+                </tr>
+                </table>
+                </div>
+            </center>
+
+
+
+    <h3 align="middle">Part 2.4: Multiresolution Blending </h3>
+
+    <p> The process: ​​In order to properly align and mask images, I created the mask in an online 
+        photoshop application. After creating an alpha layer of my mask (for example, the sombrero 
+        hat), I wrote a short script (found in the function fix_custom_mask) to convert all non-black 
+        pixels in the image into white, to create a uniform mask to use for the blending. In order to 
+        make all of the images line up, I simply resized all of the images to be the same size using 
+        the cv2.resize function. </p>
+
+        <center><b><p> Oraple </p></b></center>
+        
+
+        <center>
+            <div class="row">
+                <table style="width:100%">
+                    <tr>
+                            <img src="outputs/2.4 blend/oraple/apple.jpeg" width="220px">
+                        <figcaption> Apple </figcaption> 
+                        <img src="outputs/2.4 blend/oraple/orange.jpeg" width="220px">
+                    <figcaption> Orangee </figcaption> 
+                </tr>
+                    <tr>
+                        <td>
+                        <center>
+                  <img src="outputs/2.4 blend/oraple/L0_mask.png" width="220px">
+                  <figcaption> Layer: 1 </figcaption>
+                <center>
+                        </td>
+                    <center>
+                        <td>
+                            <img src="outputs/2.4 blend/oraple/L2_mask.png" width="220px">
+                            <figcaption> Layer: 3 </figcaption> 
+                    </center>
+                    </td>
+                    <td>
+                    <center>
+                        <img src="outputs/2.4 blend/oraple/L4_mask.png" width="220px">
+                        <figcaption> Layer: 5 </figcaption>  
+                </center>
+                </td>
+                <td>
+                    <center>
+                        <img src="outputs/2.4 blend/oraple/L7_mask.png" width="220px">
+                        <figcaption> Layer: 7 </figcaption> 
+                </center>
+                </td>
+            </tr>
+                    <tr>
+                        <td>
+                        <center>
+                  <img src="outputs/2.4 blend/oraple/L0_apple2.jpg" width="220px">
+                   
+                <center>
+                        </td>
+                    <center>
+                        <td>
+                            <img src="outputs/2.4 blend/oraple/L2_apple2.jpg" width="220px">
+                        
+                    </center>
+                    </td>
+                    <td>
+                    <center>
+                        <img src="outputs/2.4 blend/oraple/L4_apple2.jpg" width="220px">
+                   
+                </center>
+                </td>
+                <td>
+                    <center>
+                        <img src="outputs/2.4 blend/oraple/L7_apple2.jpg" width="220px">
+                    
+                </center>
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                    <center>
+              <img src="outputs/2.4 blend/oraple/L0_orange2.jpg" width="220px">
+            <center>
+                    </td>
+                <center>
+                    <td>
+                        <img src="outputs/2.4 blend/oraple/L2_orange2.jpg" width="220px">
+                </center>
+                </td>
+                <td>
+                <center>
+                    <img src="outputs/2.4 blend/oraple/L4_orange2.jpg" width="220px">
+            </center>
+            </td>
+            <td>
+                <center>
+                    <img src="outputs/2.4 blend/oraple/L6_orange2.jpg" width="220px">
+            </center>
+            </td>
+            </tr>
+
+            <tr>
+                <td>
+                <center>
+          <img src="outputs/2.4 blend/oraple/L0_combined22.jpg" width="220px">
+        <center>
+                </td>
+            <center>
+                <td>
+                    <img src="outputs/2.4 blend/oraple/L2_combined22.jpg" width="220px">
+            </center>
+            </td>
+            <td>
+            <center>
+                <img src="outputs/2.4 blend/oraple/L4_combined22.jpg" width="220px"> 
+        </center>
+        </td>
+        <td>
+            <center>
+                <img src="outputs/2.4 blend/oraple/L7_combined22.jpg" width="220px">
+        </center>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <center>
+                <img src="outputs/2.4 blend/oraple/final_oraple.png" width="220px">
+            <figcaption> Final Oraple </figcaption> 
+        </center>
+    </td>
+        </tr>
+        </tr>
+                </table>
+                </div>
+            </center>
+
+    <center><b><p>  Hat mask </p></b></center>
+    <center>
+        <div class="row">
+            <table style="width:100%">
+                <tr>
+                    <td>
+                        <center>
+                        <img src="outputs/2.4 blend/austin_sombrero/austin.jpg" width="220px">
+                            <figcaption> My friend Austin! </figcaption> 
+                        </center>
+                    </td>
+                    <td>
+                        <center>
+                        <img src="outputs/2.4 blend/austin_sombrero/somb_guy.jpg" width="220px">
+                            <figcaption> Man wearing sombrero </figcaption> 
+                        </center>
+                    </td>
+                    <td>
+                        <center>
+                        <img src="outputs/2.4 blend/austin_sombrero/somb_mask_fixed.png" width="220px">
+                            <figcaption> Hat mask </figcaption> 
+                        </center>
+                    </td>
+                </tr>
+                <tr>
+                        <td>
+                        <center>
+                            <img src="outputs/2.4 blend/austin_sombrero/L0_austin2.jpg" width="220px">
+                                <figcaption>  Layer: 1 </figcaption> 
+                            </center>
+                            </td>
+
+                    <td>
+                    <center>
+              <img src="outputs/2.4 blend/austin_sombrero/L1_austin2.jpg" width="220px">
+              <figcaption>  Layer: 2 </figcaption> 
+            <center>
+                    </td>
+                <center>
+                    <td>
+                        <img src="outputs/2.4 blend/austin_sombrero/L2_austin2.jpg" width="220px">
+                    <figcaption>  Layer: 3 </figcaption> 
+                </center>
+                </td>
+                <td>
+                <center>
+                    <img src="outputs/2.4 blend/austin_sombrero/L3_austin2.jpg" width="220px">
+                <figcaption> Layer: 4 </figcaption> 
+            </center>
+            </td>
+            </tr>
+            <tr>
+                    <td>
+                    <center>
+                        <img src="outputs/2.4 blend/austin_sombrero/L0_hat2.jpg" width="220px"> 
+            </center>
+            </td>
+            <td>
+            <center>
+                <img src="outputs/2.4 blend/austin_sombrero/L1_hat2.jpg" width="220px">
+            </center> 
+        </td>
+        <td>
+        <center>
+            <img src="outputs/2.4 blend/austin_sombrero/L2_hat2.jpg" width="220px">
+    </center>
+    </td>
+    <td>
+        <center>
+            <img src="outputs/2.4 blend/austin_sombrero/L3_hat2.jpg" width="220px">
+    </center>
+    </td>
+        </tr>
+
+
+        <tr>   
+
+                <td>
+                <center>
+                    <img src="outputs/2.4 blend/austin_sombrero/L0_combined2.jpg" width="220px">
+        </center>
+        </td>
+        <td>
+        <center>
+            <img src="outputs/2.4 blend/austin_sombrero/L1_combined2.jpg" width="220px">
+    </td>
+    <td>
+    <center>
+        <img src="outputs/2.4 blend/austin_sombrero/L2_combined2.jpg" width="220px">
+</center>
+</td>
+<td>
+    <center>
+        <img src="outputs/2.4 blend/austin_sombrero/L3_combined2.jpg" width="220px">
+</center>
+</td>  
+    </tr>
+
+    <tr>        
+        <td>
+        <center>
+        <img src="outputs/2.4 blend/austin_sombrero/L4_combined2.jpg" width="220px">
+            <figcaption> Final output, Austin wearing a sombrero </figcaption> 
+        </center>
+        </td>
+
+        </tr>
+            </table>
+            </div>
+        </center>
+
+        <center><b><p>  Moon-ocean mask</p></b></center>
+        <center>
+            <div class="row">
+                <table style="width:100%">
+                    <tr>
+                        <td>
+                            <center>
+                            <img src="outputs/2.4 blend/filtered moon + ocean/ocean_for_filter.jpg" width="220px">
+                                <figcaption> Ocean background </figcaption> 
+                            </center>
+                        </td>
+                        <td>
+                            <center>
+                            <img src="outputs/2.4 blend/filtered moon + ocean/moon_for_mask.jpg" width="220px">
+                                <figcaption> Moon to be overlayed </figcaption> 
+                            </center>
+                        </td>
+                        <td>
+                            <center>
+                            <img src="outputs/2.4 blend/filtered moon + ocean/moon_mask.jpg" width="220px">
+                                <figcaption> Moon mask </figcaption> 
+                            </center>
+                        </td>
+                    </tr>
+                    <tr>
+                            <td>
+                            <center>
+                                <img src="outputs/2.4 blend/filtered moon + ocean/L0_moon.png" width="220px">
+                                    <figcaption>  Layer: 1 </figcaption> 
+                                </center>
+                                </td>
+    
+                        <td>
+                        <center>
+                  <img src="outputs/2.4 blend/filtered moon + ocean/L1_moon.png" width="220px">
+                  <figcaption>  Layer: 2 </figcaption> 
+                <center>
+                        </td>
+                    <center>
+                        <td>
+                            <img src="outputs/2.4 blend/filtered moon + ocean/L2_moon.png" width="220px">
+                        <figcaption>  Layer: 3 </figcaption> 
+                    </center>
+                    </td>
+                    <td>
+                    <center>
+                        <img src="outputs/2.4 blend/filtered moon + ocean/L3_moon.png" width="220px">
+                    <figcaption> Layer: 4 </figcaption> 
+                </center>
+                </td>
+                </tr>
+                <tr>
+                        <td>
+                        <center>
+                            <img src="outputs/2.4 blend/filtered moon + ocean/FINAL_moon.png" width="220px">
+                            <figcaption> Final output, moon overlayed over sunset </figcaption> 
+                </center>
+                </td>
+            </tr>
+                </table>
+                </div>
+            </center>
+            <h2 align="middle">Reflection </h2>
+            <P> I had a lot of fun with this project! It was really exciting to take so many images from my everyday life and manipulate them in new and interesting ways. It was particularly interesting to learn more in depth about the role frequency and color play in percpetion, and how that can be utilized to create really interesting effects in images and videos. In particular, I thought using high and low frequencies to see different images at different distances was fascinating, and is a phenomnea that has the potential to create really cool products and artwork in the future!</P>
+            <h2 align="middle">Bells & whistles </h2>
+            All have been mentioned throughout the webpage but I implemented every section with both full color and black and white options. Further, I improved upon the hybrid images by sharpening the high frequency image layers before adding them to the final hybrid image! 
+            <h2 align="middle">Image Sources </h2>
+
+<p>
+sombrero: 
+https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.costumesupercenter.com%2Fproducts%2Fadult-sombrero&psig=AOvVaw1b9TZpX7C_eK7jkC4opMTX&ust=1632091034379000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCKD58oTLifMCFQAAAAAdAAAAABAG  
+
+moon.jpg: https://www.google.com/url?sa=i&url=https%3A%2F%2Ftheconversation.com%2Fsupermoon-how-an-illusion-makes-the-full-moon-appear-bigger-than-it-really-is-159721&psig=AOvVaw1elPr_2q8l5DzcYuamSpL4&ust=1632095280965000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCLDDze_aifMCFQAAAAAdAAAAABAD 
+
+sun.jpg: https://www.google.com/url?sa=i&url=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fsun-light&psig=AOvVaw26JqNsn6dcROUSD1X_8oDN&ust=1632095294802000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCJCF2vzaifMCFQAAAAAdAAAAABAD 
+
+ocean: https://pixabay.com/photos/sunset-sea-horizon-seascape-ocean-5608136/  
+
+moon: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.sciencefocus.com%2Fnews%2Ffull-harvest-moon-2021-uk%2F&psig=AOvVaw0b99fbhG2pLFbsXdL2g_r8&ust=1632248919573000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCMC_9JuXjvMCFQAAAAAdAAAAABAD 
+
+sheeran: https://www.google.com/imgres?imgurl=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F20%2F2020%2F09%2F20%2Fnew-dad-ed-sheeran.jpg&imgrefurl=https%3A%2F%2Fpeople.com%2Fmusic%2Fed-sheeran-teases-release-christmas-present-fans%2F&tbnid=Xh_jgOMSl13I0M&vet=12ahUKEwirgOe3mo7zAhUMAzQIHXyNDTIQMygJegUIARDeAQ..i&docid=eaB4n2XtRTMg4M&w=1200&h=800&q=ed%20sheeran&ved=2ahUKEwirgOe3mo7zAhUMAzQIHXyNDTIQMygJegUIARDeAQ 
+
+efros: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww2.eecs.berkeley.edu%2FFaculty%2FHomepages%2Fefros.html&psig=AOvVaw0zbipPfLbeT3YMQANfNlcO&ust=1632249811072000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCKCohcSajvMCFQAAAAAdAAAAABAD 
+
+
+theater mask: https://static.turbosquid.com/Preview/2015/05/15__12_15_52/theater_masks_thumbnail_02.jpg9b215364-843c-41a7-a909-dffddc005b54Original.jpg 
+
+dog: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.thecut.com%2F2019%2F06%2Fpuppy-dog-eyes-study.html&psig=AOvVaw3U6L__gdK3-XbAh5ki5H0k&ust=1632265285666000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCJDBrZbUjvMCFQAAAAAdAAAAABAK 
+
+cat: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.livescience.com%2Fcat-infected-covid-19-from-owner.html&psig=AOvVaw3lgOxiya96AtHCLTz8IPTF&ust=1632265322759000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCLCGlajUjvMCFQAAAAAdAAAAABAE 
+</p>
+</body>
+</html>

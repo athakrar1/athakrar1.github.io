@@ -1,0 +1,246 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CS 194 Final Project</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="header">
+      <h1>CS 194-26: Light Field Camera</h1>
+      <p><b>Anjali Thakrar and Shaina Chen</b> | Fall 2021</p>
+      <br>
+      <br>
+      <br>
+    </div>
+    <div id="navbar">
+      <ul id="navbarul">
+        <li class="navbarli"><a class="active" href="#header">Home</a></li>
+        <li class="navbarli"><a href="#lightfield">Light Field Camera</a></li>
+      </ul>
+    </div>
+
+
+
+
+    <div class="contentlight">
+        <h1>Project Overview</h1>
+            <p>
+                For this lightfield camera project, our goal is to produce cool effects like depth refocusing
+                and aperture adjustment using collections of large image sets taken over a plane that is orthogonally aligned to the optical axis.
+            </p>
+            <p>
+                Depth refocusing is the effect of focuses on various parts of the image at different depths. The basic idea is that closer objects have
+                much more drastic position changes than objects farther away and thus averaging the images together with different amounts of shifts will
+                cause for different parts of the image to be focused.
+            </p>
+            <p>
+                Aperature adjustment comes from the idea that averaging different amounts of images will emulate different aperature values. Less images will
+                make the image appear to have a smaller aperature while larger sets of images will result in an increased aperature size for the final image.
+                This conceptually makes sense because with a larger set of images, we are adding more images and expanding the amount of light that appear in the final image.
+            </p>
+            <p>To see more detailed descriptions on the approach and final results, read the below sections.</p>
+    </div>
+
+    <div class="contentlight">
+      <h1>Depth Refocusing</h1>
+      <h2>Approach</h2>
+      <p>For this part, we first process the images from the datasets in Stanford's collection of lightfield camera images. Each dataset has 289 images
+          that were taken on a 17 x 17 grid with a certain (u, v) value for every image corresponding to the ray position. We also have the (x, y) coordinate location 
+          that the image was taken in relative to our 17 x 17 grid.
+
+        </p>
+        <p>Then, to create the depth refocusing effect we need to shift images by different amounts so that different parts of the image are in focus.
+            By shifting all the images by some amount and then averaging them together, this allows us to create an image
+            that is an anverage of the light from all the rays captured by the sub-aperature images.
+        </p>
+        <h2>Steps</h2>
+        <p>To create the depth refocusing effect, we follow the following steps:
+        </p><p>
+        1) Shift all the given (u, v) coordinates to share the same center of (0, 0) by subtracting the mean (u, v) coordinate value from all (u, v)s of all images.
+    </p><p>
+        2) Shift all images by some constant K * (u, v) so that new_x = x + c * u and new_y = y + c * v. I used np.roll() to perform the shift. This constant C usually is around the range [-0.4, 0.4] and different C values
+        result in different areas being in focus.
+      </p>
+      <p>
+        3) Average all the shifted images together to create the final result.
+      </p>
+
+      <h2>Results</h2>
+      <p>Here are some gifs of results as well as some images to demonstrate how changing C will change the depth of the refocused area.</p>
+
+      <table class="center">
+        <tr>
+            <th>Chess (K = [-0.2, 0.3])</th>
+            <th>Legos (K = [-0.4, 0.4])</th>
+            <th>Legos Truck (K = [-0.4, 0.4])</th>
+        </tr>
+        <tr>
+          <td>
+              <img height="200" src="images/chess/depth/chess_3.gif">
+          </td>
+          <td>
+              <img height="200" src="images/lego/depth/lego_2.gif">
+          </td>
+          <td>
+            <img height="200" src="images/truck/depth/truck_3.gif">
+        </td>
+          </tr>
+        </table>
+
+        <p>Looking at how different constant values impact the depth of the focused area, we see that as C goes from negative to positive, the area of focus shifts from the further away parts of the image
+            to the objects that are closer to the camera.
+        </p>
+        <h2>Chess</h2>
+        <table class="center">
+            <tr>
+                <th>K = -0.1</th>
+                <th>K = 0</th>
+                <th>K = 0.2</th>
+            </tr>
+            <tr>
+              <td>
+                  <img height="200" src="images/chess/depth/chess_negative01.png">
+              </td>
+              <td>
+                  <img height="200" src="images/chess/depth/chess_0.png">
+              </td>
+              <td>
+                <img height="200" src="images/chess/depth/chess_02.png">
+            </td>
+              </tr>
+            </table>
+
+            <h2>Lego</h2>
+            <table class="center">
+                <tr>
+                    <th>K = -0.2</th>
+                    <th>K = 0</th>
+                    <th>K = 0.2</th>
+                </tr>
+                <tr>
+                  <td>
+                      <img height="200" src="images/lego/depth/lego_negative02.png">
+                  </td>
+                  <td>
+                      <img height="200" src="images/lego/depth/lego_0.png">
+                  </td>
+                  <td>
+                    <img height="200" src="images/lego/depth/lego_02.png">
+                </td>
+                  </tr>
+                </table>
+
+                <h2>Lego Truck</h2>
+                <table class="center">
+                    <tr>
+                        <th>K = -0.1</th>
+                        <th>K = 0</th>
+                        <th>K = 0.2</th>
+                    </tr>
+                    <tr>
+                      <td>
+                          <img height="200" src="images/truck/depth/truck_depthnegative01.png">
+                      </td>
+                      <td>
+                          <img height="200" src="images/truck/depth/truck_depth0.png">
+                      </td>
+                      <td>
+                        <img height="200" src="images/truck/depth/truck_depth02.png">
+                    </td>
+                      </tr>
+                    </table>
+
+    </div>
+
+    <div class="contentlight">
+        <h1>Aperture Adjustment</h1>
+        <h2>Approach</h2>
+        <p>Given a fixed constant K, we can simulate an adjustment in aperature by adding or removing sub-aperature images from the final averaged outcome. Conceptually, 
+            this makes sense because adding more sub-aperature images would be adding more light that passes through a specified aperature into the final average.
+         </p>
+         <p>
+             Here, we decided to have the smallest aperature image to be the image taken at the (x, y) value of (8, 8), which is the center image in the 17x17 grid.
+         </p>
+         <h2>Steps, given a fixed K value (here we used 0.15 because that resulted in ~middle area of the image being focused): </h2>
+         <p>1) Begin at N = 0 and call our depthrefocus() method on just the cneter image at (8,8).</p>
+         <p>2) Increment N by 1, which means that we will be taking all images from [8 - N, 8 - N] in the image grid to
+             [8 + N, 8 + N] in the image grid. This is a total of 9 images when N = 1. Treat all these images as the image set and call depthrefocus() on this image set.
+         </p>
+         <p>3) Repeat step 2) until we have all the images in the 17 x 17 image grid in the image set to be passed into depthrefocus().</p>
+        
+         <h2>Results</h2>
+         <p>Below are results from aperture adjustment. K = 0.15 for all, and the smallest aperture image is the center image (8,8). </p>
+        
+
+         <table class="center">
+            <tr>
+                <th>Chess</th>
+                <th>Legos</th>
+                <th>Legos Truck</th>
+            </tr>
+            <tr>
+              <td>
+                  <img height="200" src="images/chess/aperture/aperture_4.gif">
+              </td>
+              <td>
+                  <img height="200" src="images/lego/aperture/lego_aperture_2.gif">
+              </td>
+              <td>
+                <img height="200" src="images/truck/aperture/truck_3.gif">
+            </td>
+              </tr>
+        </table>
+
+        <p>Here's what the smallest aperture and largest aperture look like for these three sets of images.</p>
+        <table class="center">
+            <tr>
+                <th>Smallest aperture</th>
+                <th>Largest aperture</th>
+            </tr>
+            <tr>
+              <td>
+                  <img height="200" src="images/chess/aperture/chess_smallest_aperture.png">
+              </td>
+              <td>
+                  <img height="200" src="images/chess/aperture/chess_large_aperture.png">
+              </td>
+              </tr>
+
+              <tr>
+                <td>
+                    <img height="200" src="images/lego/aperture/lego_smallest_aperture.png">
+                </td>
+                <td>
+                    <img height="200" src="images/lego/aperture/lego_large_aperture.png">
+                </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <img height="200" src="images/truck/aperture/truck_aperature_small.png">
+                    </td>
+                    <td>
+                        <img height="200" src="images/truck/aperture/truck_aperture_large.png">
+                    </td>
+                    </tr>
+        </table>
+    </div>
+
+    <div class="contentlight">
+        <h1>Summary</h1>
+        <p>Overall, we learned that it is possible to create complex effects from simple techniques like shifting and averaging images.
+            We also learned that sub aperture images are created by reorganizing the rays of light so that every image contains the light corresponding to a small aperature range, and that selecting different sets of these
+            can allow us to mimic different aperatures even after the photographs have been taken.
+        </p>
+    </div>
+
+
+  <!-- your content here... -->
+  <script src="js/scripts.js"></script>
+</body>
+</html>

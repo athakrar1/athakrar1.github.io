@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>
+  body {
+    padding: 100px;
+    width: 1000px;
+    margin: auto;
+    text-align: left;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    color: #121212;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+</style>
+<title>Contour Map Generation</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+<p><a href="/index.html"> < Back</a></p>
+
+<body>
+
+    <h1 align="middle">Contour Map Generation</h1>
+
+<div>
+
+<h2 align="middle">Overview</h2>
+
+<p> 
+
+    In this project, I wrote a script to separate contour maps into exportable layers. To achieve this, I first found a contour map generator 
+    that created a depth-based coloring of the contours of a map. Then, I separated this single image into a variable number of 
+    images, all split up by their RGB value - I stored masks of these separated layers.
+    Assuming that the layers with smaller areas (small islands, etc) would be layered on top, I sorted the masks by the 
+    area that the mask covered in the image in order to ensure I'd be able to visualize each layer when testing the masking. 
+
+    Then, I ran the flood fill algorithm to fill holes in each of the masks due to other topographic layers covering it. 
+    After doing this, I was able to generate a set of layers! Along the way, I did a bit of image processing magic to tie it all together.  
+    
+    I built this because I 
+    noticed my sister spending hours tracing outlines of maps to make contour map art, and I thought it might be possible  
+    to apply some of the vision techniques I learned in class to make this process more efficient for her!
+
+  </p>
+
+  <p>Original Image</p>
+  <img src="orig_1.png" align="middle" width="400px"/>
+
+  <p>Final output (split into 9 layers)</p>
+
+  <img src="c1.png" align="middle" width="150px"/>
+  <img src="c2.png" align="middle" width="150px"/>
+  <img src="c3.png" align="middle" width="150px"/>
+  <img src="c4.png" align="middle" width="150px"/>
+  <img src="c5.png" align="middle" width="150px"/>
+  <img src="c6.png" align="middle" width="150px"/>
+  <center><img src="c7.png" align="middle" width="150px"/>
+  <img src="c8.png" align="middle" width="150px"/>
+  <img src="c9.png" align="middle" width="150px"/></center>
+
+  <p> Layers on top of each other: </p>
+  <img src="map.png" align="middle" width="400px"/>
+
+<p> <i> Find the code <a href="https://colab.research.google.com/drive/1_eNDVUgYdUAbbw1Px-lMaeOHqguidHzk?usp=sharing">here </a></i> </p>
+
+</div>
+</body>
+</html>

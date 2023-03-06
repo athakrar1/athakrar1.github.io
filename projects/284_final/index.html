@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>
+  body {
+    padding: 100px;
+    width: 1000px;
+    margin: auto;
+    text-align: left;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    color: #121212;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+</style>
+<title>  </title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+<p><a href="/index.html"> < Back</a></p>
+
+
+
+<body>
+
+    <h1 align="middle"> </h1>
+
+
+<div>
+
+<h2 align="middle">Sand-Water Mixing Simulation using 2-grid Material Point Method</h2>
+<p>
+    <iframe src="2grid_MPM_writeup.pdf" height="700" width="1000"></iframe>
+</p>
+<!-- 
+<!-- HW2 -->
+
+<h3> Demo 1 </h3>
+  <p>
+ Two independent grids, each grid containing water
+  and sand, respectively.</p>
+
+<video width="320" height="240" controls muted>
+  <source src="2_independent_grids.mp4" type="video/mp4">
+</video>
+
+
+
+<h3> Demo 2 </h3>
+
+  <p> One grid, multiple blocks of water interacting with
+    each other.</p>
+
+
+  <video width="320" height="240" controls muted>
+    <source src="1_water_water.mp4" type="video/mp4">
+  </video>
+  
+
+  <h3> Demo 3 </h3>
+
+    <p>One grid, multiple blocks of sand interacting with
+      each other. </p>
+
+  <video width="320" height="240" controls muted>
+    <source src="1_sand_sand.mp4" type="video/mp4">
+  </video>
+  
+  <h3> Demo 4 </h3>
+
+    <p>One grid, sand particles interacting with water
+      particles. Sand falling into water, water falling into sand.</p>
+
+  <video width="320" height="240" controls muted>
+    <source src="1_sand_water.mp4" type="video/mp4">
+  </video>
+
+   <video width="320" height="240" controls muted>
+    <source src="1_water_sand.mp4" type="video/mp4">
+  </video>
+  
+  
+  <h3> Demo 5 </h3>
+    <p> Two grids, sand particles interacting with water
+      particles (unable to kernelize due to taichi errors, which made
+      it difficult to debug the errors. The result as shown is both
+      slow and non-realistic, which is likely due to the C matrix
+      (description of C matrix) and minor discrepancies in the force
+      computation which snowballed into larger scale effects in the
+      simulation).  </p>
+
+    <video width="320" height="240" controls muted>
+      <source src="2_sand_water_explosion.mp4" type="video/mp4">
+    </video>
+    
+    
+
+    <h3> Demo 6 </h3>
+    <p> Two grids, sand particles interacting with water
+        particles but interaction forces are incorrect. New branch
+        created from an old commit that is less broken than our latest
+        code.  </p> 
+
+    <video width="320" height="240" controls muted>
+      <source src="2_grid_preflame.mp4" type="video/mp4">
+    </video>
+
+    <p>With interaction force zeroed:</p>
+
+    <video width="320" height="240" controls muted>
+      <source src="2_grid_preflame_zeroed.mp4" type="video/mp4">
+    </video>
+    
+   
+</div>
+</body>
+</html>
